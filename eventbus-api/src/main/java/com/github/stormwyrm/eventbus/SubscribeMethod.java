@@ -1,6 +1,7 @@
 package com.github.stormwyrm.eventbus;
 
 import com.github.stormwyrm.eventbus.annotation.ThreadMode;
+import com.github.stormwyrm.eventbus.data.SubscribeMethodInfo;
 
 import java.lang.reflect.Method;
 
@@ -15,9 +16,18 @@ public class SubscribeMethod {
     private ThreadMode threadMode;
     private boolean isStiky;
 
-    public SubscribeMethod(Method method, Class<?> eventType) {
+    public SubscribeMethod(Method method, Class<?> eventType, ThreadMode threadMode, boolean isStiky) {
         this.method = method;
         this.eventType = eventType;
+        this.threadMode = threadMode;
+        this.isStiky = isStiky;
+    }
+
+    public SubscribeMethod(Method method, SubscribeMethodInfo subscribeMethodInfo) {
+        this.method = method;
+        this.eventType = subscribeMethodInfo.getEventType();
+        this.threadMode = subscribeMethodInfo.getThreadMode();
+        this.isStiky = subscribeMethodInfo.isStiky();
     }
 
     public Method getMethod() {

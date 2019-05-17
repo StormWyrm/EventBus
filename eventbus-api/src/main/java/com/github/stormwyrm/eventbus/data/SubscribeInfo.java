@@ -10,6 +10,5 @@ import java.util.List;
 public interface SubscribeInfo {
     Class<?> getSubscriberClass();
 
-    List<SubscribeMethod> getSubscribeMethod();
-
+    SubscribeMethod[] getSubscribeMethod();
 }

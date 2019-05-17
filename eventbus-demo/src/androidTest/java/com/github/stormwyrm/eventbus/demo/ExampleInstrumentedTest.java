@@ -1,4 +1,4 @@
-package com.github.stormwyrm.eventbus;
+package com.github.stormwyrm.eventbus.demo;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.github.stormwyrm.qfeventbus", appContext.getPackageName());
+        assertEquals("com.github.stormwyrm.eventbus.demo", appContext.getPackageName());
     }
 }

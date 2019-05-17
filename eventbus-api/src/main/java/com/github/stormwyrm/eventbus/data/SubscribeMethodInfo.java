@@ -11,6 +11,13 @@ public class SubscribeMethodInfo {
     private String methodName;
     private Class<?> eventType;
 
+    public SubscribeMethodInfo(ThreadMode threadMode, boolean isStiky, String methodName, Class<?> eventType) {
+        this.threadMode = threadMode;
+        this.isStiky = isStiky;
+        this.methodName = methodName;
+        this.eventType = eventType;
+    }
+
     public ThreadMode getThreadMode() {
         return threadMode;
     }

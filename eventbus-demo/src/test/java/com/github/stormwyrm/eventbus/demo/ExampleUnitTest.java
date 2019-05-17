@@ -1,4 +1,4 @@
-package com.github.stormwyrm.eventbus;
+package com.github.stormwyrm.eventbus.demo;
 
 import org.junit.Test;
 

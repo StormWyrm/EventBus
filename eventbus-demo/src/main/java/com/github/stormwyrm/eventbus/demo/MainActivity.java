@@ -1,7 +1,9 @@
-package com.github.stormwyrm.eventbus;
+package com.github.stormwyrm.eventbus.demo;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import com.github.stormwyrm.eventbus.annotation.Subscribe;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -10,4 +12,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
+
+    @Subscribe()
+    public void hahah(){}
 }
