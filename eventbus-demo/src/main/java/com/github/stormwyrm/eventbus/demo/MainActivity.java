@@ -14,5 +14,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Subscribe()
-    public void hahah(){}
+    public void hahah(String hahah){
+
+    }
+
+    @Subscribe()
+    public void hahah1(int b){
+
+    }
 }
