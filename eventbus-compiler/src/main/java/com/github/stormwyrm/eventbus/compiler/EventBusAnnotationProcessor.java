@@ -114,7 +114,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 .addField(fieldSpec)
                 .addStaticBlock(CodeBlock.of("SUBSCRIBE_INFO_INDEX = new HashMap<>();"));
 
-        MethodSpec.Builder constructMethodBuilder = MethodSpec.constructorBuilder();
+        MethodSpec.Builder constructMethodBuilder = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC);
 
         for (Map.Entry<TypeElement, List<ExecutableElement>> me : executableElementsByClass.entrySet()) {
             TypeElement typeElement = me.getKey();
