@@ -14,20 +14,20 @@ public class SubscribeMethod {
     private Method method;
     private Class<?> eventType;
     private ThreadMode threadMode;
-    private boolean isStiky;
+    private boolean isSticky;
 
-    public SubscribeMethod(Method method, Class<?> eventType, ThreadMode threadMode, boolean isStiky) {
+    public SubscribeMethod(Method method, Class<?> eventType, ThreadMode threadMode, boolean isSticky) {
         this.method = method;
         this.eventType = eventType;
         this.threadMode = threadMode;
-        this.isStiky = isStiky;
+        this.isSticky = isSticky;
     }
 
     public SubscribeMethod(Method method, SubscribeMethodInfo subscribeMethodInfo) {
         this.method = method;
         this.eventType = subscribeMethodInfo.getEventType();
         this.threadMode = subscribeMethodInfo.getThreadMode();
-        this.isStiky = subscribeMethodInfo.isStiky();
+        this.isSticky = subscribeMethodInfo.isSticky();
     }
 
     public Method getMethod() {
@@ -54,12 +54,12 @@ public class SubscribeMethod {
         this.threadMode = threadMode;
     }
 
-    public boolean isStiky() {
-        return isStiky;
+    public boolean isSticky() {
+        return isSticky;
     }
 
-    public void setStiky(boolean stiky) {
-        isStiky = stiky;
+    public void setSticky(boolean sticky) {
+        isSticky = sticky;
     }
 
 }

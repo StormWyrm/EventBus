@@ -7,13 +7,13 @@ import com.github.stormwyrm.eventbus.annotation.ThreadMode;
  */
 public class SubscribeMethodInfo {
     private ThreadMode threadMode;
-    private boolean isStiky;
+    private boolean isSticky;
     private String methodName;
     private Class<?> eventType;
 
-    public SubscribeMethodInfo(ThreadMode threadMode, boolean isStiky, String methodName, Class<?> eventType) {
+    public SubscribeMethodInfo(ThreadMode threadMode, boolean isSticky, String methodName, Class<?> eventType) {
         this.threadMode = threadMode;
-        this.isStiky = isStiky;
+        this.isSticky = isSticky;
         this.methodName = methodName;
         this.eventType = eventType;
     }
@@ -26,12 +26,12 @@ public class SubscribeMethodInfo {
         this.threadMode = threadMode;
     }
 
-    public boolean isStiky() {
-        return isStiky;
+    public boolean isSticky() {
+        return isSticky;
     }
 
     public void setStiky(boolean stiky) {
-        isStiky = stiky;
+        isSticky = stiky;
     }
 
     public String getMethodName() {

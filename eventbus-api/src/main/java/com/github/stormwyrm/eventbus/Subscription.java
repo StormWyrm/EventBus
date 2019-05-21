@@ -22,6 +22,14 @@ class Subscription {
         this.subscriber = subscriber;
     }
 
+    public SubscribeMethod getSubscribeMethod() {
+        return subscribeMethod;
+    }
+
+    public void setSubscribeMethod(SubscribeMethod subscribeMethod) {
+        this.subscribeMethod = subscribeMethod;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
