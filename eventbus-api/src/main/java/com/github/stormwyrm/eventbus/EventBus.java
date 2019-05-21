@@ -5,14 +5,17 @@ import java.util.List;
 import java.util.Map;
 
 public class EventBus {
+    private static final EventBusBuilder DEFAULT_EVENT_BUS_BUILDER = new EventBusBuilder();
+
     private final Map<Class<?>, List<Subscription>> subscriptions = new LinkedHashMap<>();//存储类对应的方法和对象
     private final Map<Class<?>, List<Class<?>>> eventTyps = new LinkedHashMap<>();//存储类对应的参数类型
     private final Map<Class<?>, List<Subscription>> stikySubscription = new LinkedHashMap<>();//用于存储类对应的粘性事件
 
     private SubscribeInfoFinder subscribeInfoFinder;//查找类相关的注解的方法信息
+    private EventBusBuilder eventBusBuilder;
 
     public EventBus() {
-
+        this(DEFAULT_EVENT_BUS_BUILDER);
     }
 
     public EventBus(EventBusBuilder busBuilder) {
@@ -26,6 +29,7 @@ public class EventBus {
     public void register(Object subscriber) {
         Class<?> subscriberClass = subscriber.getClass();
         List<SubscribeMethod> subscribeMethods = subscribeInfoFinder.findSubscribeInfo(subscriberClass);
+
     }
 
     public void unregister(Object subscriber) {
