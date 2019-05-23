@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClick(View view) {
+        EventBus.getDefault().postStickyEvent("stickyEvent");
         startActivity(new Intent(this, OtherActivity.class));
     }
 

@@ -1,6 +1,12 @@
 package com.github.stormwyrm.eventbus;
 
+import android.os.Looper;
+
 import com.github.stormwyrm.eventbus.annotation.ThreadMode;
+import com.github.stormwyrm.eventbus.poster.BackgroundPoster;
+import com.github.stormwyrm.eventbus.poster.HandlerPoster;
+import com.github.stormwyrm.eventbus.poster.PendingPost;
+import com.github.stormwyrm.eventbus.poster.Poster;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -12,16 +18,20 @@ public class EventBus {
 
     private final ConcurrentHashMap<Class<?>, List<Subscription>> subscriptionsByEventType = new ConcurrentHashMap<>();//存储EventType对应的方法和对象
     private final ConcurrentHashMap<Object, List<Class<?>>> eventTypeBySubscriber = new ConcurrentHashMap<>();//存储类对应的参数类型
-    private final ConcurrentHashMap<Class<?>, List<Subscription>> stikySubscription = new ConcurrentHashMap<>();//用于存储类对应的粘性事件
+    private final ConcurrentHashMap<Class<?>, Object> stickyEventKey = new ConcurrentHashMap<>();//用于粘性事件的类型
 
     private SubscribeInfoFinder subscribeInfoFinder;//查找类相关的注解的方法信息
+    private BackgroundPoster backgroundPoster;
+    private HandlerPoster handlerPoster;
 
-    public EventBus() {
+    private EventBus() {
         this(DEFAULT_EVENT_BUS_BUILDER);
     }
 
     public EventBus(EventBusBuilder busBuilder) {
         subscribeInfoFinder = new SubscribeInfoFinder(busBuilder.isSkipGenerateIndex);
+        backgroundPoster = new BackgroundPoster(this);
+        handlerPoster = new HandlerPoster(this);
     }
 
     public static EventBus getDefault() {
@@ -36,23 +46,6 @@ public class EventBus {
         }
     }
 
-    private synchronized void subscribe(Object subscriber, SubscribeMethod subscribeMethod) {
-        Class<?> eventType = subscribeMethod.getEventType();
-        List<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
-        if (subscriptions == null) {
-            subscriptions = new ArrayList<>();
-            subscriptionsByEventType.put(eventType, subscriptions);
-        }
-        subscriptions.add(new Subscription(subscriber, subscribeMethod));
-
-        List<Class<?>> eventTypes = eventTypeBySubscriber.get(subscriber);
-        if (eventTypes == null) {
-            eventTypes = new ArrayList<>();
-            eventTypeBySubscriber.put(subscriber, eventTypes);
-        }
-        eventTypes.add(eventType);
-    }
-
     public void unregister(Object subscriber) {
         List<Class<?>> eventTypes = eventTypeBySubscriber.get(subscriber);
         if (eventTypes != null) {
@@ -61,6 +54,24 @@ public class EventBus {
             }
             eventTypeBySubscriber.remove(subscriber);
         }
+    }
+
+    public synchronized void postEvent(Object event) {
+        List<Subscription> subscriptions = subscriptionsByEventType.get(event.getClass());
+        if (subscriptions != null && subscriptions.size() != 0) {
+            for (Subscription subscription : subscriptions) {
+                postToSubscription(subscription, event, isMainThread());
+            }
+        }
+    }
+
+    private boolean isMainThread() {
+        return Looper.myLooper() == Looper.getMainLooper();
+    }
+
+    public void postStickyEvent(Object event) {
+        stickyEventKey.put(event.getClass(), event);
+        postEvent(event);
     }
 
     private void unsubscribeByEventType(Object subscriber, Class<?> eventType) {
@@ -77,14 +88,33 @@ public class EventBus {
         }
     }
 
-    public synchronized void postEvent(Object event) {
-        List<Subscription> subscriptions = subscriptionsByEventType.get(event.getClass());
-        if (subscriptions != null && subscriptions.size() != 0) {
-            for (Subscription subscription : subscriptions) {
-                postToSubscription(subscription, event, false);
+    private synchronized void subscribe(Object subscriber, SubscribeMethod subscribeMethod) {
+        Class<?> eventType = subscribeMethod.getEventType();
+        boolean sticky = subscribeMethod.isSticky();
+
+        Subscription newSubscription = new Subscription(subscriber, subscribeMethod);
+        List<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
+        if (subscriptions == null) {
+            subscriptions = new ArrayList<>();
+            subscriptionsByEventType.put(eventType, subscriptions);
+        }
+        subscriptions.add(newSubscription);
+
+        List<Class<?>> eventTypes = eventTypeBySubscriber.get(subscriber);
+        if (eventTypes == null) {
+            eventTypes = new ArrayList<>();
+            eventTypeBySubscriber.put(subscriber, eventTypes);
+        }
+        eventTypes.add(eventType);
+
+        if (sticky) {
+            Object event = stickyEventKey.get(eventType);
+            if (event != null) {
+                postToSubscription(newSubscription, event, false);
             }
         }
     }
+
 
     private void postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
         ThreadMode threadMode = subscription.getSubscribeMethod().getThreadMode();
@@ -93,10 +123,18 @@ public class EventBus {
                 invokeSubscribeMethod(subscription, event);
                 break;
             case MAIN:
-                invokeSubscribeMethod(subscription, event);
+                if (isMainThread) {
+                    invokeSubscribeMethod(subscription, event);
+                } else {
+                    handlerPoster.enqueue(subscription, event);
+                }
                 break;
             case BACKGROUND:
-                invokeSubscribeMethod(subscription, event);
+                if (isMainThread) {
+                    backgroundPoster.enqueue(subscription, event);
+                } else {
+                    invokeSubscribeMethod(subscription, event);
+                }
                 break;
         }
     }
@@ -110,6 +148,10 @@ public class EventBus {
         } catch (InvocationTargetException e) {
             e.printStackTrace();
         }
+    }
+
+    public void invokeSubscriber(PendingPost pendingPost) {
+        invokeSubscribeMethod(pendingPost.subscription, pendingPost.event);
     }
 
     private static class Hodler {

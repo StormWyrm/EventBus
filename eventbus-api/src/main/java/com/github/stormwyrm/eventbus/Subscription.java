@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * 存储对象以及注解方法
  */
-class Subscription {
+public class Subscription {
     private Object subscriber;
     private SubscribeMethod subscribeMethod;
 
