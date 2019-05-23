@@ -6,7 +6,6 @@ import com.github.stormwyrm.eventbus.annotation.ThreadMode;
 import com.github.stormwyrm.eventbus.poster.BackgroundPoster;
 import com.github.stormwyrm.eventbus.poster.HandlerPoster;
 import com.github.stormwyrm.eventbus.poster.PendingPost;
-import com.github.stormwyrm.eventbus.poster.Poster;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -110,7 +109,7 @@ public class EventBus {
         if (sticky) {
             Object event = stickyEventKey.get(eventType);
             if (event != null) {
-                postToSubscription(newSubscription, event, false);
+                postToSubscription(newSubscription, event, isMainThread());
             }
         }
     }
