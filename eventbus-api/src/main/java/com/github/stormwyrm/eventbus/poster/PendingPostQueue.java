@@ -31,13 +31,4 @@ public class PendingPostQueue {
         }
         return pendingPost;
     }
-
-    public PendingPost poll(int i) {
-        try {
-            wait(i);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return poll();
-    }
 }

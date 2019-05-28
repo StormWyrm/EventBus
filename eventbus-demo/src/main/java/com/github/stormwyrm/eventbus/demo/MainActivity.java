@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.github.stormwyrm.eventbus.EventBus;
 import com.github.stormwyrm.eventbus.annotation.Subscribe;
+import com.github.stormwyrm.eventbus.annotation.ThreadMode;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -29,13 +30,18 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(this, OtherActivity.class));
     }
 
-    @Subscribe()
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void hahah(String hahah) {
         Log.d(TAG, "hahah: " + 1);
     }
 
-    @Subscribe()
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void hahah1(Integer b) {
+        Log.d(TAG, "hahah1: " + b);
+    }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void hahah2(Integer b) {
         Log.d(TAG, "hahah1: " + b);
     }
 }

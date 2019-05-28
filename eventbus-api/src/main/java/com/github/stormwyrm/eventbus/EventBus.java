@@ -9,14 +9,16 @@ import com.github.stormwyrm.eventbus.poster.PendingPost;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class EventBus {
     private static final EventBusBuilder DEFAULT_EVENT_BUS_BUILDER = new EventBusBuilder();
 
     private final ConcurrentHashMap<Class<?>, List<Subscription>> subscriptionsByEventType = new ConcurrentHashMap<>();//存储EventType对应的方法和对象
-    private final ConcurrentHashMap<Object, List<Class<?>>> eventTypeBySubscriber = new ConcurrentHashMap<>();//存储类对应的参数类型
+    private final ConcurrentHashMap<Object, Set<Class<?>>> eventTypeBySubscriber = new ConcurrentHashMap<>();//存储类对应的参数类型
     private final ConcurrentHashMap<Class<?>, Object> stickyEventKey = new ConcurrentHashMap<>();//用于粘性事件的类型
 
     private SubscribeInfoFinder subscribeInfoFinder;//查找类相关的注解的方法信息
@@ -46,7 +48,7 @@ public class EventBus {
     }
 
     public void unregister(Object subscriber) {
-        List<Class<?>> eventTypes = eventTypeBySubscriber.get(subscriber);
+        Set<Class<?>> eventTypes = eventTypeBySubscriber.get(subscriber);
         if (eventTypes != null) {
             for (Class<?> eventType : eventTypes) {
                 unsubscribeByEventType(subscriber, eventType);
@@ -82,6 +84,7 @@ public class EventBus {
                 if (subscription.getSubscriber() == subscriber) {
                     subscriptions.remove(i);
                     i--;
+                    size--;
                 }
             }
         }
@@ -99,9 +102,9 @@ public class EventBus {
         }
         subscriptions.add(newSubscription);
 
-        List<Class<?>> eventTypes = eventTypeBySubscriber.get(subscriber);
+        Set<Class<?>> eventTypes = eventTypeBySubscriber.get(subscriber);
         if (eventTypes == null) {
-            eventTypes = new ArrayList<>();
+            eventTypes = new HashSet<>();
             eventTypeBySubscriber.put(subscriber, eventTypes);
         }
         eventTypes.add(eventType);

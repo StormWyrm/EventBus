@@ -40,7 +40,7 @@ public class BackgroundPoster implements Runnable, Poster {
     public void run() {
         try {
             while (true) {
-                PendingPost pendingPost = queue.poll(1000);
+                PendingPost pendingPost = queue.poll();
                 if (pendingPost == null) {
                     synchronized (this) {
                         // Check again, this time in synchronized

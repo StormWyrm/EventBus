@@ -33,6 +33,9 @@ class SubscribeInfoFinder {
             subscribeMethods = findSubscribeMethodByIndex(subscriberClass);
 
         }
+
+        METHOD_CACHE.put(subscriberClass, subscribeMethods);//保存寻找过的类对应的方法
+
         return subscribeMethods;
     }
 
